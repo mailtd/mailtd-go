@@ -6,11 +6,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 )
 
 // AccountsResource handles account-related API calls.
 type AccountsResource struct {
-	client *Client
+	client          *Client
+	cachedDifficulty int
 }
 
 // ListDomains returns the available public email domains.
@@ -46,20 +48,34 @@ func (r *AccountsResource) Create(ctx context.Context, address string, opts *Cre
 		return &result, err
 	}
 
-	// Free user: solve PoW locally.
-	pow := SolvePow(address, defaultDifficulty)
+	// Normalize address for PoW — server verifies against lowercased form.
+	powAddress := strings.ToLower(strings.TrimSpace(address))
+
+	// Free user: solve PoW locally, starting from cached difficulty.
+	difficulty := r.cachedDifficulty
+	if difficulty < defaultDifficulty {
+		difficulty = defaultDifficulty
+	}
+	pow := SolvePow(powAddress, difficulty)
 	result, retry, err := r.createWithPow(ctx, address, opts, &pow)
 	if err != nil {
 		return nil, err
 	}
 	if retry == nil {
+		if result.SuggestedNextDifficulty > 0 {
+			r.cachedDifficulty = result.SuggestedNextDifficulty
+		}
 		return result, nil
 	}
 
 	// Server asked for higher difficulty — re-solve once.
-	pow2 := SolvePow(address, retry.RequiredDifficulty)
+	r.cachedDifficulty = retry.RequiredDifficulty
+	pow2 := SolvePow(powAddress, retry.RequiredDifficulty)
 	pow2.Token = retry.Token
 	result, _, err = r.createWithPow(ctx, address, opts, &pow2)
+	if err == nil && result.SuggestedNextDifficulty > 0 {
+		r.cachedDifficulty = result.SuggestedNextDifficulty
+	}
 	return result, err
 }
 
