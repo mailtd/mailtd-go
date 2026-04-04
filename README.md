@@ -1,126 +1,102 @@
-# mailtd
+# mailtd-go
 
-Official Python SDK for the [Mail.td](https://mail.td) developer email platform.
+Official Go SDK for the [Mail.td](https://mail.td) API.
 
-## Install
+## Installation
 
 ```bash
-pip install mailtd
+go get github.com/mailtd/mailtd-go
 ```
-
-Requires Python 3.9+.
 
 ## Quick Start
 
-```python
-from mailtd import MailTD
+```go
+package main
 
-client = MailTD("tm_pro_...")
+import (
+	"context"
+	"fmt"
+	"log"
 
-# Create a mailbox
-account = client.accounts.create("test@mail.td", password="mypassword")
+	mailtd "github.com/mailtd/mailtd-go"
+)
 
-# List messages
-messages, page = client.messages.list(account.id)
+func main() {
+	client := mailtd.NewClient("your-api-token")
+	ctx := context.Background()
 
-# Get a message
-msg = client.messages.get(account.id, messages[0].id)
-print(msg.subject, msg.text_body)
+	// List available domains
+	domains, err := client.Accounts.ListDomains(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	for _, d := range domains {
+		fmt.Println(d.Domain)
+	}
+
+	// Create an account
+	result, err := client.Accounts.Create(ctx, "user@example.com", nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("Created account: %s (token: %s)\n", result.Address, result.Token)
+
+	// List messages
+	messages, err := client.Messages.List(ctx, result.ID, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	for _, m := range messages.Data {
+		fmt.Printf("%s: %s\n", m.From, m.Subject)
+	}
+}
 ```
 
 ## Authentication
 
-```python
-# With a Pro API token
-client = MailTD("tm_pro_...")
+All API calls require a bearer token. Pass it when creating the client:
 
-# With custom base URL
-client = MailTD("tm_pro_...", base_url="https://api.mail.td")
+```go
+client := mailtd.NewClient("your-token")
+```
 
-# As context manager
-with MailTD("tm_pro_...") as client:
-    messages, _ = client.messages.list(account_id)
+### Options
+
+```go
+// Custom base URL
+client := mailtd.NewClient("token", mailtd.WithBaseURL("https://custom.api.url"))
+
+// Custom HTTP client
+client := mailtd.NewClient("token", mailtd.WithHTTPClient(&http.Client{
+    Timeout: 30 * time.Second,
+}))
 ```
 
 ## Resources
 
-### Accounts
-
-```python
-domains = client.accounts.list_domains()
-challenge = client.accounts.get_challenge()
-account = client.accounts.create("user@mail.td", password="pass123")
-result = client.accounts.login("user@mail.td", password="pass123")
-info = client.accounts.get(account_id)
-client.accounts.delete(account_id)
-```
-
-### Messages
-
-```python
-messages, page = client.messages.list(account_id)
-msg = client.messages.get(account_id, message_id)
-eml = client.messages.get_source(account_id, message_id)
-attachment = client.messages.get_attachment(account_id, message_id, 0)
-client.messages.mark_as_read(account_id, message_id)
-count = client.messages.batch_mark_as_read(account_id, all=True)
-client.messages.delete(account_id, message_id)
-```
-
-### Domains (Pro)
-
-```python
-domains = client.domains.list()
-result = client.domains.create("example.com")
-status = client.domains.verify(domain_id)
-client.domains.delete(domain_id)
-```
-
-### Webhooks (Pro)
-
-```python
-webhook = client.webhooks.create("https://example.com/hook", events=["email.received"])
-deliveries = client.webhooks.list_deliveries(webhook.id)
-secret = client.webhooks.rotate_secret(webhook.id)
-client.webhooks.delete(webhook.id)
-```
-
-### Sandbox (Pro)
-
-```python
-info = client.sandbox.get_info()
-messages, page = client.sandbox.list_messages()
-msg = client.sandbox.get_message(message_id)
-deleted = client.sandbox.purge_messages()
-```
-
-### Tokens (Pro)
-
-```python
-result = client.tokens.create("CI Token")
-tokens = client.tokens.list()
-client.tokens.revoke(token_id)
-```
-
-### Billing (Pro)
-
-```python
-status = client.billing.get_status()
-client.billing.cancel()
-client.billing.resume()
-url = client.billing.get_portal_url()
-```
+| Resource | Description |
+|----------|-------------|
+| `client.Accounts` | Create, login, get, delete accounts; list domains |
+| `client.Messages` | List, get, delete messages; attachments; mark as read |
+| `client.Domains` | Pro: manage custom domains |
+| `client.Webhooks` | Pro: manage webhooks |
+| `client.Tokens` | Pro: manage API tokens |
+| `client.Sandbox` | Pro: sandbox email testing |
+| `client.Billing` | Pro: subscription management |
+| `client.User` | Pro: user profile and account management |
 
 ## Error Handling
 
-```python
-from mailtd import MailTD, APIError
+API errors are returned as `*mailtd.APIError`:
 
-try:
-    client.accounts.create("taken@mail.td", password="...")
-except APIError as e:
-    print(e.status)  # 409
-    print(e.code)    # "address_already_exists"
+```go
+_, err := client.Accounts.Get(ctx, "invalid-id")
+if err != nil {
+    var apiErr *mailtd.APIError
+    if errors.As(err, &apiErr) {
+        fmt.Printf("Status: %d, Code: %s, Message: %s\n", apiErr.Status, apiErr.Code, apiErr.Message)
+    }
+}
 ```
 
 ## License
