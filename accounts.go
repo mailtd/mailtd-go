@@ -39,14 +39,14 @@ func (r *AccountsResource) Create(ctx context.Context, address string, opts *Cre
 	return &result, err
 }
 
-// Get returns an account by ID.
+// Get returns an account by ID. id accepts a UUID or email address.
 func (r *AccountsResource) Get(ctx context.Context, id string) (*AccountInfo, error) {
 	var result AccountInfo
 	err := r.client.request(ctx, "GET", fmt.Sprintf("/api/accounts/%s", id), nil, &result)
 	return &result, err
 }
 
-// Delete removes an account by ID.
+// Delete removes an account by ID. id accepts a UUID or email address.
 func (r *AccountsResource) Delete(ctx context.Context, id string) error {
 	return r.client.request(ctx, "DELETE", fmt.Sprintf("/api/accounts/%s", id), nil, nil)
 }
@@ -57,7 +57,7 @@ type ResetPasswordOptions struct {
 	AuthKey  *string `json:"auth_key,omitempty"`
 }
 
-// ResetPassword resets an account's password.
+// ResetPassword resets an account's password. id accepts a UUID or email address.
 func (r *AccountsResource) ResetPassword(ctx context.Context, id string, opts *ResetPasswordOptions) error {
 	body := map[string]any{}
 	if opts != nil {

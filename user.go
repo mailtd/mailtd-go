@@ -24,12 +24,12 @@ func (r *UserResource) ListAccounts(ctx context.Context) ([]AccountInfo, error) 
 	return result, err
 }
 
-// DeleteAccount removes a user account by ID.
+// DeleteAccount removes a user account by ID. id accepts a UUID or email address.
 func (r *UserResource) DeleteAccount(ctx context.Context, id string) error {
 	return r.client.request(ctx, "DELETE", fmt.Sprintf("/api/user/accounts/%s", id), nil, nil)
 }
 
-// ResetAccountPassword resets a user account's password.
+// ResetAccountPassword resets a user account's password. id accepts a UUID or email address.
 func (r *UserResource) ResetAccountPassword(ctx context.Context, id string, opts *ResetPasswordOptions) error {
 	body := map[string]any{}
 	if opts != nil {
@@ -48,7 +48,7 @@ type UserListMessagesOptions struct {
 	Page int
 }
 
-// ListAccountMessages returns messages for a user account.
+// ListAccountMessages returns messages for a user account. id accepts a UUID or email address.
 func (r *UserResource) ListAccountMessages(ctx context.Context, id string, opts *UserListMessagesOptions) (*PaginatedResponse[EmailSummary], error) {
 	path := fmt.Sprintf("/api/user/accounts/%s/messages", id)
 	if opts != nil {
