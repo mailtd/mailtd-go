@@ -22,10 +22,9 @@ type AccountInfo struct {
 
 // CreateAccountResult is the response from creating an account.
 type CreateAccountResult struct {
-	ID                      string `json:"id"`
-	Address                 string `json:"address"`
-	Token                   string `json:"token"`
-	SuggestedNextDifficulty int    `json:"suggested_next_difficulty,omitempty"`
+	ID      string `json:"id"`
+	Address string `json:"address"`
+	Token   string `json:"token"`
 }
 
 // LoginResult is the response from logging in.
