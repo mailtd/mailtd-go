@@ -12,9 +12,11 @@ type DomainsResource struct {
 
 // List returns all custom domains.
 func (r *DomainsResource) List(ctx context.Context) ([]ProDomain, error) {
-	var result []ProDomain
-	err := r.client.request(ctx, "GET", "/api/user/domains", nil, &result)
-	return result, err
+	var wrapper struct {
+		Domains []ProDomain `json:"domains"`
+	}
+	err := r.client.request(ctx, "GET", "/api/user/domains", nil, &wrapper)
+	return wrapper.Domains, err
 }
 
 // Create adds a new custom domain.

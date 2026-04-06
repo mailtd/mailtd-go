@@ -16,12 +16,12 @@ type ListOptions struct {
 }
 
 // List returns messages for an account. accountID accepts a UUID or email address.
-func (r *MessagesResource) List(ctx context.Context, accountID string, opts *ListOptions) (*PaginatedResponse[EmailSummary], error) {
+func (r *MessagesResource) List(ctx context.Context, accountID string, opts *ListOptions) (*MessageListResult, error) {
 	path := fmt.Sprintf("/api/accounts/%s/messages", accountID)
 	if opts != nil {
 		path = addPageParam(path, opts.Page)
 	}
-	var result PaginatedResponse[EmailSummary]
+	var result MessageListResult
 	err := r.client.request(ctx, "GET", path, nil, &result)
 	return &result, err
 }
@@ -50,16 +50,28 @@ func (r *MessagesResource) MarkAsRead(ctx context.Context, accountID, messageID 
 
 // BatchMarkAsReadOptions are optional parameters for batch marking messages as read.
 type BatchMarkAsReadOptions struct {
-	MessageIDs []string `json:"message_ids,omitempty"`
+	IDs []string `json:"ids,omitempty"`
+	All bool     `json:"all,omitempty"`
 }
 
-// BatchMarkAsRead marks multiple messages as read. accountID accepts a UUID or email address.
-func (r *MessagesResource) BatchMarkAsRead(ctx context.Context, accountID string, opts *BatchMarkAsReadOptions) error {
+// BatchMarkAsReadWithResult marks multiple messages as read and returns the count of updated messages.
+// accountID accepts a UUID or email address.
+func (r *MessagesResource) BatchMarkAsReadWithResult(ctx context.Context, accountID string, opts *BatchMarkAsReadOptions) (*BatchMarkAsReadResult, error) {
 	var body any
 	if opts != nil {
 		body = opts
 	}
-	return r.client.request(ctx, "PUT", fmt.Sprintf("/api/accounts/%s/messages/read", accountID), body, nil)
+	var result BatchMarkAsReadResult
+	err := r.client.request(ctx, "PUT", fmt.Sprintf("/api/accounts/%s/messages/read", accountID), body, &result)
+	return &result, err
+}
+
+// BatchMarkAsRead marks multiple messages as read. accountID accepts a UUID or email address.
+//
+// Deprecated: Use BatchMarkAsReadWithResult to also receive the count of updated messages.
+func (r *MessagesResource) BatchMarkAsRead(ctx context.Context, accountID string, opts *BatchMarkAsReadOptions) error {
+	_, err := r.BatchMarkAsReadWithResult(ctx, accountID, opts)
+	return err
 }
 
 // GetAttachment returns the raw bytes of an attachment. accountID accepts a UUID or email address.

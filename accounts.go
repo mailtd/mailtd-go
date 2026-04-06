@@ -12,9 +12,11 @@ type AccountsResource struct {
 
 // ListDomains returns the available public email domains.
 func (r *AccountsResource) ListDomains(ctx context.Context) ([]Domain, error) {
-	var result []Domain
-	err := r.client.request(ctx, "GET", "/api/domains", nil, &result)
-	return result, err
+	var wrapper struct {
+		Domains []Domain `json:"domains"`
+	}
+	err := r.client.request(ctx, "GET", "/api/domains", nil, &wrapper)
+	return wrapper.Domains, err
 }
 
 // CreateOptions are optional parameters for creating an account.

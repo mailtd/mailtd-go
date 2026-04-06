@@ -12,9 +12,11 @@ type TokensResource struct {
 
 // List returns all API tokens.
 func (r *TokensResource) List(ctx context.Context) ([]Token, error) {
-	var result []Token
-	err := r.client.request(ctx, "GET", "/api/user/tokens", nil, &result)
-	return result, err
+	var wrapper struct {
+		Tokens []Token `json:"tokens"`
+	}
+	err := r.client.request(ctx, "GET", "/api/user/tokens", nil, &wrapper)
+	return wrapper.Tokens, err
 }
 
 // Create generates a new API token.

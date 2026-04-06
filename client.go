@@ -115,8 +115,21 @@ func (c *Client) request(ctx context.Context, method, path string, body any, res
 
 	if resp.StatusCode >= 400 {
 		apiErr := &APIError{Status: resp.StatusCode}
-		if err := json.NewDecoder(resp.Body).Decode(apiErr); err != nil {
+		var errBody struct {
+			Error   string `json:"error"`
+			Code    string `json:"code"`
+			Message string `json:"message"`
+		}
+		if err := json.NewDecoder(resp.Body).Decode(&errBody); err != nil {
 			return &APIError{Status: resp.StatusCode, Code: "unknown", Message: resp.Status}
+		}
+		apiErr.Code = errBody.Error
+		if apiErr.Code == "" {
+			apiErr.Code = errBody.Code
+		}
+		apiErr.Message = errBody.Message
+		if apiErr.Message == "" {
+			apiErr.Message = errBody.Error
 		}
 		return apiErr
 	}
@@ -148,8 +161,21 @@ func (c *Client) requestRaw(ctx context.Context, method, path string) ([]byte, e
 
 	if resp.StatusCode >= 400 {
 		apiErr := &APIError{Status: resp.StatusCode}
-		if err := json.NewDecoder(resp.Body).Decode(apiErr); err != nil {
+		var errBody struct {
+			Error   string `json:"error"`
+			Code    string `json:"code"`
+			Message string `json:"message"`
+		}
+		if err := json.NewDecoder(resp.Body).Decode(&errBody); err != nil {
 			return nil, &APIError{Status: resp.StatusCode, Code: "unknown", Message: resp.Status}
+		}
+		apiErr.Code = errBody.Error
+		if apiErr.Code == "" {
+			apiErr.Code = errBody.Code
+		}
+		apiErr.Message = errBody.Message
+		if apiErr.Message == "" {
+			apiErr.Message = errBody.Error
 		}
 		return nil, apiErr
 	}

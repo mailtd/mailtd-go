@@ -34,8 +34,8 @@ func main() {
 		fmt.Println(d.Domain)
 	}
 
-	// Create an account
-	result, err := client.Accounts.Create(ctx, "user@example.com", nil)
+	// Create an account on a system domain
+	result, err := client.Accounts.Create(ctx, "demo@sugtbt.com", nil)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -46,7 +46,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	for _, m := range messages.Data {
+	for _, m := range messages.Messages {
 		fmt.Printf("%s: %s\n", m.From, m.Subject)
 	}
 }
@@ -76,7 +76,7 @@ client := mailtd.NewClient("token", mailtd.WithHTTPClient(&http.Client{
 
 | Resource | Description |
 |----------|-------------|
-| `client.Accounts` | Create, login, get, delete accounts; list domains |
+| `client.Accounts` | Create, get, delete accounts; reset password; list domains |
 | `client.Messages` | List, get, delete messages; attachments; mark as read |
 | `client.Domains` | Pro: manage custom domains |
 | `client.Webhooks` | Pro: manage webhooks |
@@ -90,6 +90,8 @@ client := mailtd.NewClient("token", mailtd.WithHTTPClient(&http.Client{
 API errors are returned as `*mailtd.APIError`:
 
 ```go
+import "errors"
+
 _, err := client.Accounts.Get(ctx, "invalid-id")
 if err != nil {
     var apiErr *mailtd.APIError

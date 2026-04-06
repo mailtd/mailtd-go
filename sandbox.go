@@ -23,12 +23,12 @@ type SandboxListOptions struct {
 }
 
 // ListMessages returns sandbox messages.
-func (r *SandboxResource) ListMessages(ctx context.Context, opts *SandboxListOptions) (*PaginatedResponse[SandboxEmailSummary], error) {
+func (r *SandboxResource) ListMessages(ctx context.Context, opts *SandboxListOptions) (*SandboxMessageListResult, error) {
 	path := "/api/user/sandbox/messages"
 	if opts != nil {
 		path = addPageParam(path, opts.Page)
 	}
-	var result PaginatedResponse[SandboxEmailSummary]
+	var result SandboxMessageListResult
 	err := r.client.request(ctx, "GET", path, nil, &result)
 	return &result, err
 }
@@ -45,9 +45,19 @@ func (r *SandboxResource) DeleteMessage(ctx context.Context, id string) error {
 	return r.client.request(ctx, "DELETE", fmt.Sprintf("/api/user/sandbox/messages/%s", id), nil, nil)
 }
 
+// PurgeMessagesWithResult removes all sandbox messages and returns the count of deleted messages.
+func (r *SandboxResource) PurgeMessagesWithResult(ctx context.Context) (*PurgeMessagesResult, error) {
+	var result PurgeMessagesResult
+	err := r.client.request(ctx, "DELETE", "/api/user/sandbox/messages", nil, &result)
+	return &result, err
+}
+
 // PurgeMessages removes all sandbox messages.
+//
+// Deprecated: Use PurgeMessagesWithResult to also receive the count of deleted messages.
 func (r *SandboxResource) PurgeMessages(ctx context.Context) error {
-	return r.client.request(ctx, "DELETE", "/api/user/sandbox/messages", nil, nil)
+	_, err := r.PurgeMessagesWithResult(ctx)
+	return err
 }
 
 // GetMessageSource returns the raw MIME source of a sandbox message.

@@ -3,6 +3,7 @@ package mailtd
 import (
 	"context"
 	"fmt"
+	"net/url"
 )
 
 // UserResource handles Pro user management API calls.
@@ -17,11 +18,22 @@ func (r *UserResource) GetMe(ctx context.Context) (*ProUser, error) {
 	return &result, err
 }
 
-// ListAccounts returns all accounts belonging to the user.
-func (r *UserResource) ListAccounts(ctx context.Context) ([]AccountInfo, error) {
-	var result []AccountInfo
-	err := r.client.request(ctx, "GET", "/api/user/accounts", nil, &result)
-	return result, err
+// ListAccountsPage returns a page of accounts with cursor-based pagination.
+func (r *UserResource) ListAccountsPage(ctx context.Context, cursor string) (*AccountListResult, error) {
+	path := "/api/user/accounts"
+	if cursor != "" {
+		path += "?cursor=" + url.QueryEscape(cursor)
+	}
+	var result AccountListResult
+	err := r.client.request(ctx, "GET", path, nil, &result)
+	return &result, err
+}
+
+// ListAccounts returns the first page of accounts belonging to the user.
+//
+// Deprecated: Use ListAccountsPage for cursor-based pagination.
+func (r *UserResource) ListAccounts(ctx context.Context) (*AccountListResult, error) {
+	return r.ListAccountsPage(ctx, "")
 }
 
 // DeleteAccount removes a user account by ID. id accepts a UUID or email address.
@@ -49,12 +61,12 @@ type UserListMessagesOptions struct {
 }
 
 // ListAccountMessages returns messages for a user account. id accepts a UUID or email address.
-func (r *UserResource) ListAccountMessages(ctx context.Context, id string, opts *UserListMessagesOptions) (*PaginatedResponse[EmailSummary], error) {
+func (r *UserResource) ListAccountMessages(ctx context.Context, id string, opts *UserListMessagesOptions) (*MessageListResult, error) {
 	path := fmt.Sprintf("/api/user/accounts/%s/messages", id)
 	if opts != nil {
 		path = addPageParam(path, opts.Page)
 	}
-	var result PaginatedResponse[EmailSummary]
+	var result MessageListResult
 	err := r.client.request(ctx, "GET", path, nil, &result)
 	return &result, err
 }

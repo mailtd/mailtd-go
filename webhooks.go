@@ -12,9 +12,11 @@ type WebhooksResource struct {
 
 // List returns all webhooks.
 func (r *WebhooksResource) List(ctx context.Context) ([]Webhook, error) {
-	var result []Webhook
-	err := r.client.request(ctx, "GET", "/api/user/webhooks", nil, &result)
-	return result, err
+	var wrapper struct {
+		Webhooks []Webhook `json:"webhooks"`
+	}
+	err := r.client.request(ctx, "GET", "/api/user/webhooks", nil, &wrapper)
+	return wrapper.Webhooks, err
 }
 
 // Create adds a new webhook.
@@ -39,7 +41,9 @@ func (r *WebhooksResource) RotateSecret(ctx context.Context, id string) (*Webhoo
 
 // ListDeliveries returns delivery attempts for a webhook.
 func (r *WebhooksResource) ListDeliveries(ctx context.Context, id string) ([]WebhookDelivery, error) {
-	var result []WebhookDelivery
-	err := r.client.request(ctx, "GET", fmt.Sprintf("/api/user/webhooks/%s/deliveries", id), nil, &result)
-	return result, err
+	var wrapper struct {
+		Deliveries []WebhookDelivery `json:"deliveries"`
+	}
+	err := r.client.request(ctx, "GET", fmt.Sprintf("/api/user/webhooks/%s/deliveries", id), nil, &wrapper)
+	return wrapper.Deliveries, err
 }

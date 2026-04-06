@@ -14,14 +14,34 @@ func (r *BillingResource) GetStatus(ctx context.Context) (*SubscriptionStatus, e
 	return &result, err
 }
 
+// CancelWithResult cancels the current subscription and returns the cancel mode and operation ID.
+func (r *BillingResource) CancelWithResult(ctx context.Context) (*CancelResult, error) {
+	var result CancelResult
+	err := r.client.request(ctx, "POST", "/api/user/subscription/cancel", nil, &result)
+	return &result, err
+}
+
 // Cancel cancels the current subscription.
+//
+// Deprecated: Use CancelWithResult to receive the cancel mode and operation ID.
 func (r *BillingResource) Cancel(ctx context.Context) error {
-	return r.client.request(ctx, "POST", "/api/user/subscription/cancel", nil, nil)
+	_, err := r.CancelWithResult(ctx)
+	return err
+}
+
+// ResumeWithResult resumes a cancelled subscription and returns the status and operation ID.
+func (r *BillingResource) ResumeWithResult(ctx context.Context) (*ResumeResult, error) {
+	var result ResumeResult
+	err := r.client.request(ctx, "POST", "/api/user/subscription/resume", nil, &result)
+	return &result, err
 }
 
 // Resume resumes a cancelled subscription.
+//
+// Deprecated: Use ResumeWithResult to receive the status and operation ID.
 func (r *BillingResource) Resume(ctx context.Context) error {
-	return r.client.request(ctx, "POST", "/api/user/subscription/resume", nil, nil)
+	_, err := r.ResumeWithResult(ctx)
+	return err
 }
 
 // GetPortalURL returns a Stripe billing portal URL.
