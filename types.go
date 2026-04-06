@@ -27,13 +27,6 @@ type CreateAccountResult struct {
 	Token   string `json:"token"`
 }
 
-// LoginResult is the response from logging in.
-type LoginResult struct {
-	ID      string `json:"id"`
-	Address string `json:"address"`
-	Token   string `json:"token"`
-}
-
 // EmailSummary represents a message in a list.
 type EmailSummary struct {
 	ID          string    `json:"id"`

@@ -39,28 +39,6 @@ func (r *AccountsResource) Create(ctx context.Context, address string, opts *Cre
 	return &result, err
 }
 
-// LoginOptions specifies credentials for logging in.
-type LoginOptions struct {
-	Password *string `json:"password,omitempty"`
-	AuthKey  *string `json:"auth_key,omitempty"`
-}
-
-// Login authenticates with an existing account.
-func (r *AccountsResource) Login(ctx context.Context, address string, opts *LoginOptions) (*LoginResult, error) {
-	body := map[string]any{"address": address}
-	if opts != nil {
-		if opts.Password != nil {
-			body["password"] = *opts.Password
-		}
-		if opts.AuthKey != nil {
-			body["auth_key"] = *opts.AuthKey
-		}
-	}
-	var result LoginResult
-	err := r.client.request(ctx, "POST", "/api/token", body, &result)
-	return &result, err
-}
-
 // Get returns an account by ID.
 func (r *AccountsResource) Get(ctx context.Context, id string) (*AccountInfo, error) {
 	var result AccountInfo
