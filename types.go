@@ -11,6 +11,7 @@ type Domain struct {
 	Domain    string `json:"domain"`
 	Default   bool   `json:"default"`
 	SortOrder int    `json:"sort_order"`
+	ProOnly   bool   `json:"pro_only"`
 }
 
 // AccountInfo represents an email account.
