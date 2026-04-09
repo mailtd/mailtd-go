@@ -1,6 +1,6 @@
 # mailtd-go
 
-Official Go SDK for the [Mail.td](https://mail.td) API.
+Official Go SDK for the [Mail.td](https://mail.td) developer email platform.
 
 ## Installation
 
@@ -22,31 +22,25 @@ import (
 )
 
 func main() {
-	client := mailtd.NewClient("your-api-token")
+	client := mailtd.NewClient("td_...")
 	ctx := context.Background()
 
-	// List available domains
-	domains, err := client.Accounts.ListDomains(ctx)
+	// Create a mailbox
+	pw := "mypassword"
+	account, err := client.Accounts.Create(ctx, "test@mail.td", &mailtd.CreateOptions{
+		Password: &pw,
+	})
 	if err != nil {
 		log.Fatal(err)
 	}
-	for _, d := range domains {
-		fmt.Println(d.Domain)
-	}
-
-	// Create an account on a system domain
-	result, err := client.Accounts.Create(ctx, "demo@sugtbt.com", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("Created account: %s (token: %s)\n", result.Address, result.Token)
+	fmt.Printf("Created account: %s\n", account.Address)
 
 	// List messages
-	messages, err := client.Messages.List(ctx, result.ID, nil)
+	result, err := client.Messages.List(ctx, account.ID, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
-	for _, m := range messages.Messages {
+	for _, m := range result.Data {
 		fmt.Printf("%s: %s\n", m.From, m.Subject)
 	}
 }
@@ -54,20 +48,20 @@ func main() {
 
 ## Authentication
 
-All API calls require a bearer token. Pass it when creating the client:
+All API calls require a Pro API Token (`td_...`). Pass it when creating the client:
 
 ```go
-client := mailtd.NewClient("your-token")
+client := mailtd.NewClient("td_...")
 ```
 
 ### Options
 
 ```go
 // Custom base URL
-client := mailtd.NewClient("token", mailtd.WithBaseURL("https://custom.api.url"))
+client := mailtd.NewClient("td_...", mailtd.WithBaseURL("https://custom.api.url"))
 
 // Custom HTTP client
-client := mailtd.NewClient("token", mailtd.WithHTTPClient(&http.Client{
+client := mailtd.NewClient("td_...", mailtd.WithHTTPClient(&http.Client{
     Timeout: 30 * time.Second,
 }))
 ```
