@@ -42,15 +42,13 @@ func (r *UserResource) DeleteAccount(ctx context.Context, id string) error {
 }
 
 // ResetAccountPassword resets a user account's password. id accepts a UUID or email address.
+//
+// When opts.Password is supplied the SDK derives the auth_key locally; if id
+// is a UUID, opts.Address must be set so the SDK can compute the salt.
 func (r *UserResource) ResetAccountPassword(ctx context.Context, id string, opts *ResetPasswordOptions) error {
-	body := map[string]any{}
-	if opts != nil {
-		if opts.Password != nil {
-			body["password"] = *opts.Password
-		}
-		if opts.AuthKey != nil {
-			body["auth_key"] = *opts.AuthKey
-		}
+	body, err := buildResetPasswordBody(id, opts)
+	if err != nil {
+		return err
 	}
 	return r.client.request(ctx, "PUT", fmt.Sprintf("/api/user/accounts/%s/reset-password", id), body, nil)
 }

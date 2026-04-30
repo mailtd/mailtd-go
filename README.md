@@ -1,20 +1,19 @@
 # mailtd-go
 
-[![Go Reference](https://pkg.go.dev/badge/github.com/mailtd/mailtd-go.svg)](https://pkg.go.dev/github.com/mailtd/mailtd-go)
+[![Go Reference](https://pkg.go.dev/badge/github.com/mailtd/mailtd-go/v2.svg)](https://pkg.go.dev/github.com/mailtd/mailtd-go/v2)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-Official Go SDK for [Mail.td](https://mail.td) — the developer email platform for **temp mail**, **email testing**, and **SMTP sandbox**.
+Official Go SDK for [Mail.td](https://mail.td) — temp mail & temporary email with REST API, webhooks, and custom domains. Instant inboxes, password protected, sign in from any device.
 
 - **Temp Mail API** — Create and manage temporary email addresses programmatically
-- **Email Testing** — Receive, inspect, and verify emails in your test suite
-- **SMTP Sandbox** — Capture outbound emails in a safe sandbox environment without sending to real inboxes
 - **Webhooks** — Get notified in real-time when emails arrive
 - **Custom Domains** — Use your own domain for branded temporary mailboxes
+- **Password Protected** — Sign in to the same mailbox from any device
 
 ## Installation
 
 ```bash
-go get github.com/mailtd/mailtd-go
+go get github.com/mailtd/mailtd-go/v2
 ```
 
 ## Quick Start
@@ -27,7 +26,7 @@ import (
 	"fmt"
 	"log"
 
-	mailtd "github.com/mailtd/mailtd-go"
+	mailtd "github.com/mailtd/mailtd-go/v2"
 )
 
 func main() {
@@ -59,7 +58,6 @@ func main() {
 
 - **Automated testing** — Create temp mail addresses in CI/CD to test signup flows, OTP verification, and transactional emails
 - **Email verification testing** — Validate that your app sends the right emails with the right content
-- **SMTP sandbox** — Route your app's outbound SMTP to Mail.td sandbox to inspect emails without spamming real users
 - **QA environments** — Give each test run its own mailbox, then tear it down
 
 ## Authentication
@@ -91,7 +89,6 @@ client := mailtd.NewClient("td_...", mailtd.WithHTTPClient(&http.Client{
 | `client.Domains` | Pro: manage custom domains |
 | `client.Webhooks` | Pro: manage webhooks |
 | `client.Tokens` | Pro: manage API tokens |
-| `client.Sandbox` | Pro: sandbox email testing |
 | `client.Billing` | Pro: subscription management |
 | `client.User` | Pro: user profile and account management |
 
@@ -113,7 +110,7 @@ if err != nil {
 
 ## Links
 
-- [Website](https://mail.td) — Create temp mail, email testing, SMTP sandbox
+- [Website](https://mail.td) — Temp mail & temporary email with REST API
 - [API Documentation](https://docs.mail.td) — Full API reference
 - [Node.js SDK](https://www.npmjs.com/package/mailtd) — `npm install mailtd`
 - [Python SDK](https://pypi.org/project/mailtd/) — `pip install mailtd`

@@ -30,7 +30,6 @@ type Client struct {
 	Domains  *DomainsResource
 	Webhooks *WebhooksResource
 	Tokens   *TokensResource
-	Sandbox  *SandboxResource
 	Billing  *BillingResource
 	User     *UserResource
 }
@@ -67,7 +66,6 @@ func NewClient(token string, opts ...Option) *Client {
 	c.Domains = &DomainsResource{client: c}
 	c.Webhooks = &WebhooksResource{client: c}
 	c.Tokens = &TokensResource{client: c}
-	c.Sandbox = &SandboxResource{client: c}
 	c.Billing = &BillingResource{client: c}
 	c.User = &UserResource{client: c}
 	return c

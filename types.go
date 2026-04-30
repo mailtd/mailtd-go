@@ -180,31 +180,6 @@ type Token struct {
 	TokenValue *string `json:"token_value,omitempty"`
 }
 
-// SandboxInfo represents sandbox environment details.
-type SandboxInfo struct {
-	Enabled    bool   `json:"enabled"`
-	AccountID  string `json:"account_id"`
-	Address    string `json:"address"`
-	SMTPHost   string `json:"smtp_host"`
-	SMTPPort   int    `json:"smtp_port"`
-	AuthMethod string `json:"auth_method"`
-	Username   string `json:"username"`
-	Note       string `json:"note"`
-	Quota      int64  `json:"quota"`
-	Used       int64  `json:"used"`
-}
-
-// SandboxEmailSummary represents a sandbox message in a list.
-type SandboxEmailSummary struct {
-	ID          string    `json:"id"`
-	Sender      string    `json:"sender"`
-	From        string    `json:"from"`
-	Subject     string    `json:"subject"`
-	PreviewText string    `json:"preview_text"`
-	Size        int64     `json:"size"`
-	CreatedAt   time.Time `json:"created_at"`
-}
-
 // ScheduledChange represents a scheduled subscription change.
 type ScheduledChange struct {
 	Action      string `json:"action"`
@@ -250,12 +225,6 @@ type MessageListResult struct {
 	Page     int            `json:"page"`
 }
 
-// SandboxMessageListResult is the response from listing sandbox messages.
-type SandboxMessageListResult struct {
-	Messages []SandboxEmailSummary `json:"messages"`
-	Page     int                   `json:"page"`
-}
-
 // AccountListResult is the response from listing user accounts.
 type AccountListResult struct {
 	Accounts   []AccountInfo `json:"accounts"`
@@ -272,10 +241,6 @@ type BatchMarkAsReadResult struct {
 	Updated int `json:"updated"`
 }
 
-// PurgeMessagesResult is the response from purging all sandbox messages.
-type PurgeMessagesResult struct {
-	Deleted int `json:"deleted"`
-}
 
 // CancelResult is the response from cancelling a subscription.
 type CancelResult struct {
